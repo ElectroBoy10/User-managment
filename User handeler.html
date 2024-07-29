@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitor Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --button-bg-color: #333333;
+            --button-text-color: #ffffff;
+            --button-hover-bg-color: #444444;
+            --input-bg-color: #333333;
+            --input-text-color: #ffffff;
+            --blur-effect: rgba(255, 255, 255, 0.1);
+        }
+
+        .light-theme {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --button-bg-color: #008CBA;
+            --button-text-color: #ffffff;
+            --button-hover-bg-color: #005f73;
+            --input-bg-color: #f0f0f0;
+            --input-text-color: #000000;
+            --blur-effect: rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            background: var(--blur-effect);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: var(--input-bg-color);
+            color: var(--input-text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--button-bg-color);
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: var(--button-bg-color);
+            color: var(--button-text-color);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover-bg-color);
+            transform: translateY(-2px);
+        }
+
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--button-bg-color);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: var(--button-bg-color);
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .top-right {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--button-bg-color);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .top-right:hover {
+            background-color: var(--button-hover-bg-color);
+            transform: rotate(180deg);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--input-bg-color);
+            color: var(--input-text-color);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Competitor Management</h1>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name">
+        </div>
+        <div class="form-group">
+            <label for="surname">Surname</label>
+            <input type="text" id="surname">
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" oninput="validatePhoneNumber(this)">
+        </div>
+        <div class="form-group">
+            <label for="note">Note</label>
+            <input type="text" id="note">
+        </div>
+        <div>
+            <button class="add" onclick="addCompetitor()">Add Competitor</button>
+            <button class="clear" onclick="clearAll()">Clear All</button>
+        </div>
+        <div>
+            <button class="view" onclick="toggleSection('competitorSection')">View Competitors</button>
+            <button class="view" onclick="toggleSection('searchSection')">Search Winners</button>
+            <button class="view" onclick="toggleSection('dataManagementSection')">Data Management</button>
+        </div>
+
+        <div id="competitorSection" class="hidden">
+            <h2>Competitors</h2>
+            <ul id="competitor-list"></ul>
+        </div>
+
+        <div id="searchSection" class="hidden">
+            <h2>Search Winners</h2>
+            <div class="form-group">
+                <label for="winner1">Winner 1</label>
+                <input type="number" id="winner1" min="1" max="500">
+            </div>
+            <div class="form-group">
+                <label for="winner2">Winner 2</label>
+                <input type="number" id="winner2" min="1" max="500">
+            </div>
+            <div class="form-group">
+                <label for="winner3">Winner 3</label>
+                <input type="number" id="winner3" min="1" max="500">
+            </div>
+            <button class="view" onclick="viewWinners()">View Winners</button>
+        </div>
+
+        <div id="dataManagementSection" class="hidden">
+            <h2>Data Management</h2>
+            <button class="save" onclick="saveData()">Save Data</button>
+            <button class="load" onclick="loadData()">Load Data</button>
+            <div class="form-group">
+                <label for="dataArea">Data Area</label>
+                <textarea id="dataArea" rows="6"></textarea>
+            </div>
+            <button class="save" onclick="copyToClipboard()">Copy to Clipboard</button>
+            <button class="load" onclick="loadFromClipboard()">Load from TextBox</button>
+        </div>
+    </div>
+
+    <div class="top-right" onclick="toggleTheme()">
+        🌓
+    </div>
+
+    <script>
+        const maxCompetitors = 500;
+        let competitors = [];
+
+        function updateList() {
+            const list = document.getElementById('competitor-list');
+            list.innerHTML = '';
+            competitors.forEach((competitor, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    ${index + 1}. ${competitor.name} ${competitor.surname} - ${competitor.phone} (${competitor.note})
+                    <div class="actions">
+                        <button class="edit" onclick="editCompetitor(${index})">Edit</button>
+                        <button class="delete" onclick="removeCompetitor(${index})">Delete</button>
+                    </div>
+                `;
+                list.appendChild(listItem);
+            });
+            toggleSection('competitorSection', competitors.length > 0);
+        }
+
+        function addCompetitor() {
+            const name = document.getElementById('name').value.trim();
+            const surname = document.getElementById('surname').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const note = document.getElementById('note').value.trim();
+
+            if (competitors.length >= maxCompetitors) {
+                alert('Maximum number of competitors reached.');
+                return;
+            }
+
+            if (name && surname && phone) {
+                competitors.push({ name, surname, phone, note });
+                updateList();
+                clearForm();
+                alert('Competitor added successfully.');
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+
+        function removeCompetitor(index) {
+            if (confirm('Are you sure you want to delete this competitor?')) {
+                competitors.splice(index, 1);
+                updateList();
+                alert('Competitor deleted successfully.');
+            }
+        }
+
+        function editCompetitor(index) {
+            const name = prompt('Enter new name', competitors[index].name);
+            const surname = prompt('Enter new surname', competitors[index].surname);
+            const phone = prompt('Enter new phone number', competitors[index].phone);
+            const note = prompt('Enter new note', competitors[index].note);
+
+            if (name && surname && phone) {
+                competitors[index] = { name, surname, phone, note };
+                updateList();
+                alert('Competitor updated successfully.');
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('surname').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('note').value = '';
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all competitors?')) {
+                competitors = [];
+                updateList();
+                alert('All competitors cleared.');
+            }
+        }
+
+        function toggleSection(sectionId, show = true) {
+            const sections = ['competitorSection', 'searchSection', 'dataManagementSection'];
+            sections.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+
+            const section = document.getElementById(sectionId);
+            if (section && show) {
+                section.classList.remove('hidden');
+            }
+        }
+
+        function viewWinners() {
+            const winner1 = document.getElementById('winner1').value;
+            const winner2 = document.getElementById('winner2').value;
+            const winner3 = document.getElementById('winner3').value;
+
+            if (winner1 && winner2 && winner3) {
+                alert(`Winner 1: ${competitors[winner1 - 1] ? competitors[winner1 - 1].name : 'N/A'}
+Winner 2: ${competitors[winner2 - 1] ? competitors[winner2 - 1].name : 'N/A'}
+Winner 3: ${competitors[winner3 - 1] ? competitors[winner3 - 1].name : 'N/A'}`);
+            } else {
+                alert('Please fill out all winner fields.');
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('competitors', JSON.stringify(competitors));
+            alert('Data saved successfully.');
+        }
+
+        function loadData() {
+            const storedCompetitors = localStorage.getItem('competitors');
+            if (storedCompetitors) {
+                competitors = JSON.parse(storedCompetitors);
+                updateList();
+                alert('Data loaded successfully.');
+            } else {
+                alert('No data to load.');
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+        }
+
+        function validatePhoneNumber(input) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        }
+
+        function copyToClipboard() {
+            const dataArea = document.getElementById('dataArea');
+            const data = JSON.stringify(competitors);
+            dataArea.value = data;
+            dataArea.select();
+            document.execCommand('copy');
+            alert('Data copied to clipboard.');
+        }
+
+        function loadFromClipboard() {
+            const dataArea = document.getElementById('dataArea');
+            dataArea.select();
+            document.execCommand('paste');
+            try {
+                const data = JSON.parse(dataArea.value);
+                competitors = data;
+                updateList();
+                alert('Data loaded from TextBox.');
+            } catch (error) {
+                alert('Failed to load data from TextBox. Please ensure the data is in the correct format.');
+            }
+        }
+
+        window.addEventListener('load', () => {
+            loadData();
+        });
+    </script>
+</body>
+</html>
+
